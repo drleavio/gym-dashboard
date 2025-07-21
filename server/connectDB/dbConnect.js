@@ -1,7 +1,7 @@
 const mongoose=require("mongoose")
 
 const dbConnect=async()=>{
-    console.log("uri new",process.env.WHATSAPP);
+    // console.log("uri new",process.env.WHATSAPP);
     
     try {
         mongoose.connect(process.env.MONGO_URI, {
