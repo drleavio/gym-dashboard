@@ -1,10 +1,10 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import User from './views/User';
 
 const DashBoard = lazy(() => import('./views/DashBoard'));
 const Login = lazy(() => import('./views/Login'));
 const Signup=lazy(()=> import('./views/Signup'))
+const User=lazy(()=>import('./views/User'))
 
 const App = () => {
   return (
