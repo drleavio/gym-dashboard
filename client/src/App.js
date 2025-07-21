@@ -1,15 +1,24 @@
-import React from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import DashBoard from './views/DashBoard'
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import User from './views/User';
+
+const DashBoard = lazy(() => import('./views/DashBoard'));
+const Login = lazy(() => import('./views/Login'));
+const Signup=lazy(()=> import('./views/Signup'))
 
 const App = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path='/dashboard' element={<DashBoard/>}/>
-      </Routes>
+      <Suspense fallback={<div className='h-[100vh] w-[100vw] flex items-center justify-center bg-blue-100'>Loading...</div>}>
+        <Routes>
+          <Route path='/login' element={<Login />} />
+          <Route path='/' element={<Signup/>}/>
+          <Route path='/dashboard' element={<DashBoard />} />
+          <Route path='/user/:id' element={<User/>}/>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
-  )
-}
+  );
+};
 
-export default App
+export default App;

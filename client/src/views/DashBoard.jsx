@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
 import axios from "axios"
+import withAuthProtection from '../controllers/withAuthProtection'
 
-export default function DashBoard() {
+const DashBoard=()=> {
     const [open, setOpen] = useState(false)
     const [formData, setFormData] = useState({
         name: "",
@@ -301,3 +302,4 @@ export default function DashBoard() {
         </div>
     )
 }
+export default withAuthProtection(DashBoard)
