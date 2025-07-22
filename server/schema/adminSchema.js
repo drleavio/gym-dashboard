@@ -17,6 +17,11 @@ const adminSchema = new mongoose.Schema({
     required: true,
     minlength: 6, // Minimum length check
   },
+  phone:{
+    type:String,
+    required:true,
+    minlength:10,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
