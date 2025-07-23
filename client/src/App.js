@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import OtpVerify from './views/OtpVerify';
 
 const DashBoard = lazy(() => import('./views/DashBoard'));
 const Login = lazy(() => import('./views/Login'));
@@ -15,6 +16,7 @@ const App = () => {
           <Route path='/' element={<Signup/>}/>
           <Route path='/dashboard' element={<DashBoard />} />
           <Route path='/user/:id' element={<User/>}/>
+          <Route path='/otp-verify' element={<OtpVerify/>}/>
         </Routes>
       </Suspense>
     </BrowserRouter>

@@ -7,6 +7,12 @@ export const AuthProvider = ({ children }) => {
         return localStorage.getItem("token");
     });
 
+    const [formData, setFormData] = useState({
+            email: "",
+            phone: "",
+            password: "",
+    });
+
     useEffect(() => {
         if (token) {
             localStorage.setItem("token", token);
@@ -25,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ token, setTokenState, logout }}>
+        <AuthContext.Provider value={{ token, setTokenState, logout,formData,setFormData }}>
             {children}
         </AuthContext.Provider>
     );
