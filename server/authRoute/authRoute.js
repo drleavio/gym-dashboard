@@ -208,7 +208,7 @@ router.post("/login", async (req, res) => {
             });
         }
 
-        return res.json({ msg: "OTP sent successfully", identifier });
+        return res.json({ msg: "OTP sent successfully", identifier,success:true });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ msg: "Error sending OTP" });
