@@ -11,37 +11,48 @@ const Login = () => {
       const [error, setError] = useState("");
     
       const handleChange = (e) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if((e.target.name==="email" || e.target.name==="phone") && emailRegex.test(e.target.value)){
-            setFormData((prev) => ({
-                ...prev,
-                email: e.target.value,
-              }));
-        }else if((e.target.name==="email" || e.target.name==="phone") && !emailRegex.test(e.target.value)){
+        const { name, value } = e.target;
+      
+        if (name === "email") {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) {
+            // Optional: show email validation error here
+            console.log("Invalid email");
+          }
+        }
+      
+        if (name === "phone") {
+          const phoneRegex = /^[0-9]{10}$/; // Optional: 10 digit number validation
+          if (!phoneRegex.test(value)) {
+            console.log("Invalid phone number");
+          }
+        }
+      
+        // Update the form data regardless
         setFormData((prev) => ({
           ...prev,
-          phone: e.target.value,
+          [name]: value,
         }));
-    }
-    setFormData((prev) => ({
-        ...prev,
-        [e.target.name]: e.target.value,
-      }));
-    };
+      };
+      
     
       const handleSubmit = async(e) => {
         e.preventDefault();
+    console.log(formData);
     
-        const { email, phone, password } = formData;
-    
-        if (!email || !phone || !password) {
-          setError("All fields are required.");
-          return;
-        }
-    
-        setError("");
+       
         try {
+            const { email, phone, password } = formData;
+    
+            if ((!email && !phone )|| !password) {
+              setError("All fields are required.");
+              return;
+            }
+        
+            setError("");
             const response=await axios.post("http://localhost:5732/api/auth/login",formData);
+            console.log(response);
+            
         
         } catch (error) {
             
@@ -59,9 +70,8 @@ const Login = () => {
         <div>
           <label className="block text-gray-700 font-medium mb-1">Email or Phone</label>
           <input
-            type="email"
-            name="email"
-            value={formData.email || formData.phone}
+            name={formData.email || formData.phone}
+            type="text"
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="example@example.com"
@@ -93,4 +103,4 @@ const Login = () => {
   )
 }
 
-export default withAuthProtection(Login)
+export default Login

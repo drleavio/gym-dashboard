@@ -1,10 +1,12 @@
 import withAuthProtection from '../controllers/withAuthProtection'
 import React, { useState } from "react";
 import { useAuth } from '../store/useStore';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from "axios"
 
 const Signup = () => {
   const {formData, setFormData} = useAuth()
+  const navigat=useNavigate()
 
   const [error, setError] = useState("");
 
@@ -15,24 +17,39 @@ const Signup = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
-    const { email, phone, password } = formData;
+   
+    try {
+        const { email, phone, password } = formData;
 
-    if (!email || !phone || !password) {
-      setError("All fields are required.");
-      return;
+        if (!email || !phone || !password) {
+          setError("All fields are required.");
+          return;
+        }
+    
+        setError("");
+        console.log("Form Data:", formData);
+        const response=await axios.post("http://localhost:5732/api/auth/signup",formData)
+        console.log(response);
+        if(!response.data.success){
+            setError(response.data.msg)
+            return
+        }
+        setFormData({
+            ...formData,
+            email:"",
+            phone:"",
+            password:""
+        })
+        navigat("/login")
+
+        
+    } catch (error) {
+        setError(error)
     }
-
-    setError("");
-    console.log("Form Data:", formData);
-    setFormData({
-        ...formData,
-        email:"",
-        phone:"",
-        password:""
-    })
+    
   };
 
   return (
@@ -40,7 +57,7 @@ const Signup = () => {
       <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-md">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Signup</h2>
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {/* {error && <p className="text-red-500 text-sm mb-4">{error}</p>} */}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -78,7 +95,9 @@ const Signup = () => {
               placeholder="Enter a secure password"
             />
           </div>
-
+            {
+                error && <div className="w-full bg-red-200 text-center text-red-600 py-2 rounded-md hover:bg-blue-700 transition duration-200">{error}</div>
+            }
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
@@ -92,4 +111,4 @@ const Signup = () => {
   );
 };
 
-export default withAuthProtection(Signup)
+export default Signup

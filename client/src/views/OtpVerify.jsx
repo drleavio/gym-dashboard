@@ -1,16 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../store/useStore';
 
 const OtpVerify = () => {
   const inputRefs = useRef([]);
-  const [otp, setOtp] = useState(['', '', '', '']);
+  const {formData, setFormData} = useAuth()
   const [error, setError] = useState('');
 
   const handleChange = (index, value) => {
     if (!/^[0-9]?$/.test(value)) return;
 
-    const updatedOtp = [...otp];
+    const updatedOtp = [...formData.otp];
     updatedOtp[index] = value;
-    setOtp(updatedOtp);
+    setFormData({
+        ...formData,
+        otp:updatedOtp
+    });
 
     if (value && index < 3) {
       inputRefs.current[index + 1].focus();
@@ -49,14 +53,14 @@ useEffect(() => {
   }, []);
 
   const handleKeyDown = (e, index) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+    if (e.key === 'Backspace' && !formData.otp[index] && index > 0) {
       inputRefs.current[index - 1].focus();
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const otpValue = otp.join('');
+    const otpValue = formData.otp.join('');
 
     if (otpValue.length < 4) {
       setError('Please enter a valid 4-digit OTP');
@@ -76,7 +80,7 @@ useEffect(() => {
 
         <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-6">
           <div className="flex space-x-4">
-            {otp.map((digit, index) => (
+            {formData.otp.map((digit, index) => (
               <input
                 key={index}
                 type="text"

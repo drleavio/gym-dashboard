@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
             email: "",
             phone: "",
             password: "",
+            otp:['', '', '', ''],
     });
 
     useEffect(() => {

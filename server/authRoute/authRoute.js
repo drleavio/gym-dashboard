@@ -17,6 +17,7 @@ router.post("/signup", async (req, res) => {
         if (userExist) {
             return res.json({
                 msg: "User already exists",
+                success:false
             });
         }
 
@@ -32,6 +33,7 @@ router.post("/signup", async (req, res) => {
 
         return res.json({
             msg: "Signed up successfully",
+            success:true
         });
     } catch (error) {
         console.error("Signup Error:", error);
