@@ -58,6 +58,105 @@ const transporter = nodemailer.createTransport({
 function generateOtp() {
     return Math.floor(1000 + Math.random() * 9000).toString();
 }
+router.post("/forgot", async (req, res) => {
+    try {
+        await dbConnect();
+        const { email, phone } = req.body;
+        let userExist;
+        let identifier;
+        if (email) {
+            userExist = await Admin.findOne({ email });
+            if (!userExist) {
+                return res.json({
+                    msg: "user does not exist"
+                })
+            }
+            identifier = email;
+            const otp = generateOtp();
+            const expiresAt = Date.now() + 5 * 60 * 1000;
+            otpStore.set(identifier, { otp, expiresAt });
+            await transporter.sendMail({
+                from: "your-email@gmail.com",
+                to: email,
+                subject: "Your OTP Code",
+                text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+            });
+            return res.json({
+                msg: "otp sent successfully",
+                identifier
+            })
+        } else {
+            userExist = await Admin.findOne({ phone });
+            if (!userExist) {
+                return res.json({
+                    msg: "user does not exist"
+                })
+            }
+            identifier = phone;
+            const otp = generateOtp();
+            const expiresAt = Date.now() + 5 * 60 * 1000;
+            otpStore.set(identifier, { otp, expiresAt });
+            await client.messages.create({
+                body: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+                from: process.env.WHATSAPP,
+                to: `+91${phone}`,
+            });
+            return res.json({
+                msg: "otp sent successfully",
+                identifier
+            })
+        }
+    } catch (error) {
+        return res.json({
+            msg: "unable to reset passowrd"
+        })
+    }
+})
+
+router.put("/reset", async (req, res) => {
+    try {
+        await dbConnect();
+        const { identifier, otp } = req.body;
+        if (!identifier || !otp) {
+            return res.status(400).json({ msg: "Identifier and OTP required" });
+        }
+
+        const stored = otpStore.get(identifier);
+
+        if (!stored || stored.otp !== otp) {
+            return res.status(401).json({ msg: "Invalid OTP" });
+        }
+
+        if (Date.now() > stored.expiresAt) {
+            otpStore.delete(identifier);
+            return res.status(410).json({ msg: "OTP expired" });
+        }
+        const user = await Admin.findOne({
+            $or: [
+                { email: identifier },
+                { phone: identifier }
+            ]
+        });
+
+        if (!user) {
+            return res.json({
+                msg: "user does not exist"
+            })
+        }
+   
+        const hashedPassword = await bcryptjs.hash(password, 10);
+        user.password = hashedPassword;
+        await user.save();
+        otpStore.delete(identifier);
+
+        res.status(200).json({ msg: "Password updated successfully" });
+
+    } catch (error) {
+        return res.json({
+            msg:"error updating password"
+        })
+    }
+})
 
 router.post("/login", async (req, res) => {
     try {
