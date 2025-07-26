@@ -6,9 +6,12 @@ const router=express.Router();
 
 
 router.get("/allusers",async(req,res)=>{
+    const user=req.user 
+    const adminId=user.id
+
     try {
         await dbConnect()
-        const response=await User.find({});
+        const response=await User.find({admin:adminId});
         return res.status(200).json({
             msg:"data fetched successfully",
             response
@@ -21,9 +24,11 @@ router.get("/allusers",async(req,res)=>{
 })
 
 router.get("/user/:id",async(req,res)=>{
+    const user=req.user 
+    const adminId=user.id
     const userId=req.params.id;
     try {
-        const response=await User.findById(userId);
+        const response = await User.findOne({ _id: userId, admin: adminId });
         if(!response){
             return res.json({
                 msg:"user not available"
@@ -41,6 +46,10 @@ router.get("/user/:id",async(req,res)=>{
 })
 
 router.post("/adduser",async(req,res)=>{
+    const user=req.user 
+    const adminId=user.id
+    console.log(adminId);
+    
    try {
     await dbConnect()
     const {
@@ -63,6 +72,7 @@ router.post("/adduser",async(req,res)=>{
       }
   
       const newUser = new User({
+        admin:adminId,
         name,
         phone,
         whatsapp,
@@ -88,11 +98,13 @@ router.post("/adduser",async(req,res)=>{
 })
 
 router.post("/update-status", async (req, res) => {
+    const user=req.user 
+    const adminId=user.id
     const { userId, status, transactionId, paidOn,paymentMethod } = req.body;
   
     try {
       await dbConnect()
-      const user = await User.findById(userId);
+      const user = await User.findById(userId,adminId);
       if (!user) return res.status(404).json({ message: "User not found" });
       const validMethods = ['UPI', 'Card', 'NetBanking', 'Wallet', 'Cash'];
         if (!validMethods.includes(paymentMethod)) {
@@ -121,7 +133,10 @@ router.post("/update-status", async (req, res) => {
     }
   });
 
-router.put("/updateuser", async (req, res) => {
+  router.put("/updateuser", async (req, res) => {
+    const user = req.user;
+    const adminId = user.id;
+  
     try {
       await dbConnect();
   
@@ -143,7 +158,7 @@ router.put("/updateuser", async (req, res) => {
         "age",
         "gender",
         "name",
-        "phone"
+        "phone",
       ];
   
       const updates = {};
@@ -158,13 +173,17 @@ router.put("/updateuser", async (req, res) => {
         return res.status(400).json({ message: "No valid fields provided for update" });
       }
   
-      const updatedUser = await User.findByIdAndUpdate(id, updates, {
-        new: true,
-        runValidators: true,
-      });
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: id, admin: adminId }, 
+        updates,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
   
       if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "User not found or unauthorized" });
       }
   
       res.status(200).json({
@@ -174,9 +193,10 @@ router.put("/updateuser", async (req, res) => {
   
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Internal server error", error });
+      res.status(500).json({ message: "Internal server error", error: error.message });
     }
   });
+  
   
 
 module.exports=router
