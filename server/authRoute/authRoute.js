@@ -193,14 +193,15 @@ router.post("/login", async (req, res) => {
         const expiresAt = Date.now() + 5 * 60 * 1000;
         otpStore.set(identifier, { otp, expiresAt });
 
-        if (email) {
-            await transporter.sendMail({
-                from: "your-email@gmail.com",
-                to: email,
-                subject: "Your OTP Code",
-                text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
-            });
-        } else {
+        // if (email) {
+        //     await transporter.sendMail({
+        //         from: "your-email@gmail.com",
+        //         to: email,
+        //         subject: "Your OTP Code",
+        //         text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+        //     });
+        // } 
+        if(!email){
             await client.messages.create({
                 body: `Your OTP is ${otp}. It is valid for 5 minutes.`,
                 from: process.env.WHATSAPP,
@@ -221,6 +222,8 @@ router.post("/verify-otp", async (req, res) => {
     if (!identifier || !otp) {
         return res.status(400).json({ msg: "Identifier and OTP required" });
     }
+    console.log("identifier",identifier,otp);
+    
 
     const stored = otpStore.get(identifier);
 

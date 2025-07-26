@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
 import axios from "axios"
 import withAuthProtection from '../controllers/withAuthProtection'
+import { useAuth } from '../store/useStore'
 
 const DashBoard=()=> {
     const [open, setOpen] = useState(false)
+    const {token}=useAuth()
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
@@ -36,7 +38,11 @@ const DashBoard=()=> {
     const [userData,setUserData]=useState([]);
     const fetchData=async()=>{
         try {
-            const response=await axios.get("http://localhost:5732/api/allusers")
+            const response=await axios.get("http://localhost:5732/api/allusers",{
+                headers: {
+                    Authorization: `Bearer ${token}`
+                  }
+            })
             setUserData(response.data.response)
             console.log(response);
             
@@ -76,7 +82,7 @@ const DashBoard=()=> {
 
 
     return (
-        <div className='h-[100vh] w-full bg-blue-100 flex flex-col'>
+        <div className='h-[100vh] w-full bg-blue-500 flex flex-col'>
             <button
                 onClick={() => setOpen(true)}
                 className="rounded-md bg-gray-950/5 px-2.5 py-1.5 text-sm w-fit font-semibold text-gray-900 hover:bg-gray-950/10"
@@ -302,4 +308,4 @@ const DashBoard=()=> {
         </div>
     )
 }
-export default withAuthProtection(DashBoard)
+export default DashBoard

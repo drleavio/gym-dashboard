@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState,useContext } from "react";
+import { createContext, useEffect, useState,useContext,useMemo } from "react";
 
 const AuthContext = createContext();
 
@@ -31,8 +31,16 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("token");
     };
 
+    const contextValue = useMemo(() => ({
+        token,
+        setTokenState,
+        logout,
+        formData,
+        setFormData
+      }), [token, formData]);
+
     return (
-        <AuthContext.Provider value={{ token, setTokenState, logout,formData,setFormData }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );

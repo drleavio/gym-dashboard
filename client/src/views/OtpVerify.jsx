@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../store/useStore';
+import axios from "axios"
+import { useNavigate } from 'react-router-dom';
 
 const OtpVerify = () => {
   const inputRefs = useRef([]);
-  const {formData, setFormData} = useAuth()
+  const {formData, setFormData,setTokenState} = useAuth()
   const [error, setError] = useState('');
+  const navigate=useNavigate()
 
   const handleChange = (index, value) => {
     if (!/^[0-9]?$/.test(value)) return;
@@ -58,18 +61,37 @@ useEffect(() => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const otpValue = formData.otp.join('');
-
+    const otpValue = formData.otp.join(''); // assuming formData.otp is array of digits
+  
     if (otpValue.length < 4) {
       setError('Please enter a valid 4-digit OTP');
       return;
     }
+  
+    try {
+      const response = await axios.post("http://localhost:5732/api/auth/verify-otp", {
+        identifier: formData.email || formData.phone,
+        otp: otpValue
+      });
+      console.log(response.data);
+      setTokenState(response.data.token)
+     setFormData({
+        ...formData,
+        email:"",
+        phone:"",
+        password:"",
+        otp:['','','','']
+     })
+     navigate("/dashboard")
 
-    setError('');
-    console.log('OTP Submitted:', otpValue);
+  
+    } catch (error) {
+      setError(error.response?.data?.message || error.message || "OTP verification failed");
+    }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
@@ -80,7 +102,7 @@ useEffect(() => {
 
         <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-6">
           <div className="flex space-x-4">
-            {formData.otp.map((digit, index) => (
+            {formData.otp?.map((digit, index) => (
               <input
                 key={index}
                 type="text"

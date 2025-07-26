@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import axios from "axios"
 import { useAuth } from '../store/useStore'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Login = () => {
-
+    const navigate=useNavigate()
     const { formData, setFormData } = useAuth()
 
     const [error, setError] = useState("");
@@ -57,10 +57,10 @@ const Login = () => {
             setError("");
             const response = await axios.post("http://localhost:5732/api/auth/login", formData);
             console.log(response);
-
+            navigate("/otp-verify")
 
         } catch (error) {
-
+            setError(error)
         }
 
     };
@@ -69,7 +69,7 @@ const Login = () => {
             <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-md">
                 <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
 
-                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+                {/* {error && <p className="text-red-500 text-sm mb-4">{error}</p>} */}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -99,6 +99,7 @@ const Login = () => {
                     <button
                         type="submit"
                         className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
+                        onClick={(e)=>handleSubmit(e)}
                     >
                         Login
                     </button>
