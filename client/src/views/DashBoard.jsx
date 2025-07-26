@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
 import axios from "axios"
-import withAuthProtection from '../controllers/withAuthProtection'
 import { useAuth } from '../store/useStore'
+import { Link } from 'react-router-dom'
 
 const DashBoard=()=> {
     const [open, setOpen] = useState(false)
@@ -74,21 +74,40 @@ const DashBoard=()=> {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
         setOpen(false)
-        console.log("Form Data:", formData);
+        // console.log("Form Data:", formData);
+        try {
+            const response = await axios.post(
+                "http://localhost:5732/api/adduser",
+                formData, // request body
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`
+                  }
+                }
+              );
+              // handle success if needed
+              console.log(response.data);
+              fetchData()
+        } catch (error) {
+            
+        }
     };
 
 
     return (
-        <div className='h-[100vh] w-full bg-blue-500 flex flex-col'>
+        <div className='h-[100vh] w-full bg-white flex flex-col'>
+            <div className='w-full flex items-center justify-between'>
+                <div>Iron gym</div>
             <button
                 onClick={() => setOpen(true)}
                 className="rounded-md bg-gray-950/5 px-2.5 py-1.5 text-sm w-fit font-semibold text-gray-900 hover:bg-gray-950/10"
             >
                Add new User
             </button>
+            </div>
             <Dialog open={open} onClose={setOpen} className="relative z-10">
                 <DialogBackdrop
                     transition
@@ -299,9 +318,11 @@ const DashBoard=()=> {
             <div>
                 {
                      userData && userData?.map((data,ind)=>{
-                        return <div key={ind}>
+                        return <Link key={ind} to={`/user/${data._id}`}>
+                        <div >
                             <div>{data.name}</div>
                         </div>
+                        </Link>
                     })
                 }
             </div>

@@ -20,6 +20,26 @@ router.get("/allusers",async(req,res)=>{
     }
 })
 
+router.get("/user/:id",async(req,res)=>{
+    const userId=req.params.id;
+    try {
+        const response=await User.findById(userId);
+        if(!response){
+            return res.json({
+                msg:"user not available"
+            })
+        }
+        return res.json({
+            msg:"user accessed",
+            response
+        })
+    } catch (error) {
+        return res.json({
+            msg:"error fetching user"
+        })
+    }
+})
+
 router.post("/adduser",async(req,res)=>{
    try {
     await dbConnect()

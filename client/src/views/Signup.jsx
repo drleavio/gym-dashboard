@@ -1,4 +1,3 @@
-import withAuthProtection from '../controllers/withAuthProtection'
 import React, { useState } from "react";
 import { useAuth } from '../store/useStore';
 import { Link, useNavigate } from 'react-router-dom';
